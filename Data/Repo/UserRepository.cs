@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductAPI.Controllers.Resources;
 using ProductAPI.Interfaces;
 using ProductAPI.Models;
 using ProductApp.Data;
@@ -51,20 +52,24 @@ namespace ProductAPI.Data.Repo
             }
         }
 
-        public void Register(string userName, string password)
+        public void Register(LoginRequestResource registerReq)
         {
             byte[] passwordHash, passwordKey;
 
             using(var hmac = new HMACSHA512())
             {
                 passwordKey = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerReq.Password));
             }
 
             User user = new User();
-            user.UserName = userName;
+            user.UserName = registerReq.UserName;
             user.Password = passwordHash;
             user.PasswordKey = passwordKey;
+            user.Firstname = registerReq.Firstname;
+            user.Lastname = registerReq.Lastname;
+            user.Email = registerReq.Email;
+            user.DateOfBirth = registerReq.DateOfBirth;
 
             dc.Users.Add(user);
              
