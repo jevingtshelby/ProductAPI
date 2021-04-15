@@ -12,8 +12,13 @@ namespace ProductAPI.Mapping
     {
         public MappingProfile()
         {
+            //Domain to API Resource
             CreateMap<ProductCategory, ProductCategoryResource>();
             CreateMap<Product, ProductResource>();
+
+            //API Resource to Domain
+            CreateMap<ProductResource, Product>()
+                .ForMember(p => p.Id, opt => opt.Ignore()); 
         }
     }
 }

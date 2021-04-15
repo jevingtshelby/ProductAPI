@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductAPI.Models;
 using ProductApp.Models;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,7 @@ namespace ProductApp.Data
 
         }
         public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
