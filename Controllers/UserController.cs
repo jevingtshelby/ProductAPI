@@ -48,6 +48,19 @@ namespace ProductAPI.Controllers
             return Ok(loginRes);
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(LoginRequestResource loginReq)
+        {
+            if (await userRepo.UserAlreadyExists(loginReq.UserName))
+                return BadRequest("User already exists, please try something else");
+
+            userRepo.Register(loginReq.UserName, loginReq.Password);
+
+            await userRepo.SaveChanges();
+
+            return StatusCode(201);
+        }
+
         public string CreateJWT(User user)
         {
             var secretKey = configuration.GetSection("AppSettings:Key").Value;
