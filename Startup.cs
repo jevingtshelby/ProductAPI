@@ -13,6 +13,8 @@ using ProductAPI.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using FluentValidation.AspNetCore;
+using ProductAPI.Filters;
 
 namespace ProductAPI
 {
@@ -39,6 +41,13 @@ namespace ProductAPI
                 configuration.RootPath = "ClientApp/dist";
             });
 
+            services.AddMvc(
+                options =>
+                {
+                    options.Filters.Add<ValidationFilter>();
+                }             
+                ).AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>());
+
             services.AddScoped<IUserRepository, UserRepository>();
 
             var secretKey = Configuration.GetSection("AppSettings:Key").Value;
@@ -56,6 +65,12 @@ namespace ProductAPI
                         IssuerSigningKey = key
                     }; 
                 });
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("UserWithActiveStatus", policy => policy.RequireAssertion(
+            //        context => context.User.Claims
+            //        ))
+            //})
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
