@@ -40,7 +40,9 @@ namespace ProductAPI
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-
+            services.AddCors(options => options.AddDefaultPolicy(
+                builder => builder.AllowAnyOrigin()
+                ));
             services.AddMvc(
                 options =>
                 {
@@ -95,6 +97,16 @@ namespace ProductAPI
             }
 
             app.UseRouting();
+
+            //cors should be between routing and authorization
+            app.UseCors();
+
+            app.Use(async (context, next) =>
+            {
+                //context.Response.Headers.Add("X-Frame-Options", "DENY"); // This
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN"); // Or this
+                await next();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

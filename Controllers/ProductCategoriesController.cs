@@ -117,15 +117,15 @@ namespace ProductAPI.Controllers
             return Ok(id);
         }
         
-        [HttpGet("/api/products/{id}")]
-        public async Task<IActionResult> GetProduct(int id)
+        [HttpGet("/api/products")]
+        public async Task<IActionResult> GetAllProducts()
         {
-            var product = await context.Products.FindAsync(id);
+            var product = await context.Products.ToListAsync();
 
             if (product == null)
                 return NotFound();
 
-            var productResource = mapper.Map<Product, ProductResource>(product);
+            var productResource = mapper.Map<List<Product>, List<ProductResource>>(product);
 
             return Ok(productResource);
             

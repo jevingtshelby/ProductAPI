@@ -49,7 +49,7 @@ namespace ProductAPI.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(LoginRequestResource registerReq)
+        public async Task<IActionResult> Register(RegisterRequestResource registerReq)
         {
             if (await userRepo.UserAlreadyExists(registerReq.UserName))
                 return BadRequest("User already exists, please try something else");

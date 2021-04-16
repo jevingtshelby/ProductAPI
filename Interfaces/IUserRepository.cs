@@ -10,7 +10,7 @@ namespace ProductAPI.Interfaces
     public interface IUserRepository
     {
         Task<User> Authenticate(string userName, string password);
-        void Register(LoginRequestResource registerReq);
+        void Register(RegisterRequestResource registerReq);
 
         Task<bool> UserAlreadyExists(string userName);
         Task<int> SaveChanges();

@@ -52,7 +52,7 @@ namespace ProductAPI.Data.Repo
             }
         }
 
-        public void Register(LoginRequestResource registerReq)
+        public void Register(RegisterRequestResource registerReq)
         {
             byte[] passwordHash, passwordKey;
 

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ProductAPI.Validators
 {
-    public class LoginRequestResourceValidator : AbstractValidator<LoginRequestResource>
+    public class RegisterRequestResourceValidator : AbstractValidator<RegisterRequestResource>
     {
-        public LoginRequestResourceValidator()
+        public RegisterRequestResourceValidator()
         {
             RuleFor(x => x.Firstname)
                 .NotEmpty().Matches("^[a-zA-Z]*$");
