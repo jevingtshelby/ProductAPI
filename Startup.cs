@@ -15,6 +15,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FluentValidation.AspNetCore;
 using ProductAPI.Filters;
+using Microsoft.AspNetCore.ResponseCompression;
+using ProductAPI.Options;
+using Microsoft.OpenApi.Models;
 
 namespace ProductAPI
 {
@@ -40,9 +43,12 @@ namespace ProductAPI
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            services.AddCors(options => options.AddDefaultPolicy(
-                builder => builder.AllowAnyOrigin()
-                ));
+
+            services.AddResponseCompression(options => options.Providers.Add<GzipCompressionProvider>());
+
+            services.AddCors(options =>
+                     options.AddDefaultPolicy(
+                     builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().Build()));
             services.AddMvc(
                 options =>
                 {
@@ -51,6 +57,7 @@ namespace ProductAPI
                 ).AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
             var secretKey = Configuration.GetSection("AppSettings:Key").Value;
             var key = new SymmetricSecurityKey(Encoding.UTF8
@@ -73,6 +80,10 @@ namespace ProductAPI
             //        context => context.User.Claims
             //        ))
             //})
+            services.AddSwaggerGen(x =>
+            {
+                x.SwaggerDoc("v1", new OpenApiInfo { Title ="ProductAPI", Version="v1"});
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -95,6 +106,8 @@ namespace ProductAPI
             {
                 app.UseSpaStaticFiles();
             }
+
+            app.UseResponseCompression();
 
             app.UseRouting();
 
@@ -129,6 +142,18 @@ namespace ProductAPI
                 {
                     spa.UseAngularCliServer(npmScript: "start");
                 }
+            });
+
+            var swaggerOptions = new SwaggerOptions();
+            Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
+
+            app.UseSwagger(option =>
+            {
+                option.RouteTemplate = swaggerOptions.JsonRoute;
+            });
+            app.UseSwaggerUI(option =>
+            {
+                option.SwaggerEndpoint(swaggerOptions.UIEndpoint, swaggerOptions.Description);
             });
         }
     }

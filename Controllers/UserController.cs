@@ -56,7 +56,7 @@ namespace ProductAPI.Controllers
 
             userRepo.Register(registerReq);
 
-            await userRepo.SaveChanges();
+            //await userRepo.SaveChanges();
 
             return StatusCode(201);
         }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductAPI.Controllers.Resources;
+using ProductAPI.Interfaces;
 using ProductApp.Data;
 using ProductApp.Models;
 
@@ -20,20 +21,23 @@ namespace ProductAPI.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IProductRepository productRepo;
 
-        public ProductCategoriesController(ApplicationDbContext context, IMapper mapper)
+        public ProductCategoriesController(ApplicationDbContext context, IMapper mapper, IProductRepository productRepo)
         {
             this.context = context;
             this.mapper = mapper;
+            this.productRepo = productRepo;
         }
 
         [HttpGet("/api/categories")]
         public async Task<IEnumerable<ProductCategoryResource>> GetProductCategories()
         {
             //var categories = await context.ProductCategories.Include(m => m.Products).ToListAsync();
-            var categories = await context.ProductCategories.ToListAsync();
+            //var categories = await context.ProductCategories.ToListAsync();
+            var categories = await productRepo.GetProductCategories();
 
-            return mapper.Map<List<ProductCategory>, List<ProductCategoryResource>>(categories);
+            return mapper.Map<List<ProductCategory>, List<ProductCategoryResource>>(categories.ToList());
         }
 
         [HttpPost("/api/products")]
@@ -41,23 +45,13 @@ namespace ProductAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            //extra noise not really needed
-            //var productCategory = context.ProductCategories.FindAsync(productResource.ProductCategoryId);
-
-            //if(productCategory == null)
-            //{
-            //    ModelState.AddModelError("ProductCategoryId", "Invalid ProductCategoryId");
-            //    return BadRequest(ModelState);
-            //}
-
-            //var product = mapper.Map<ProductResource, Product>(productResource);
+            
             var product = mapper.Map<ProductResource, Product>(productResource);
 
-            context.Products.Add(product);
-            await context.SaveChangesAsync();
+            var productReturn = await productRepo.CreateProduct(product);//context.Products.Add(product);
+            //await context.SaveChangesAsync();
 
-            return Ok(product);
+            return Ok(productReturn);
         }
 
         [HttpGet("/api/products/{id}")]
@@ -66,7 +60,7 @@ namespace ProductAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var product = await context.Products.FindAsync(id);
+            var product = await productRepo.GetProductbyId(id);//await context.Products.FindAsync(id);
 
             if (product == null)
                 return NotFound();
@@ -83,17 +77,16 @@ namespace ProductAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var product = await context.Products.FindAsync(id);
+            var product = await productRepo.GetProductbyId(id);
 
             if (product == null)
                 return NotFound();
 
             mapper.Map<ProductResource, Product>(productResource, product);
-            //.productResource.LastUpdatedBy = DateTime.Now; actually name of user who logged in
 
-            await context.SaveChangesAsync();
+            var productUpdated = await productRepo.UpdateProduct(id, product);
 
-            var result = mapper.Map<Product, ProductResource>(product, productResource);
+            var result = mapper.Map<Product, ProductResource>(productUpdated, productResource);
 
 
             return Ok(result);
@@ -105,14 +98,12 @@ namespace ProductAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var product = await context.Products.FindAsync(id);
+            var product = await productRepo.GetProductbyId(id);
 
             if (product == null)
                 return NotFound();
 
-            context.Remove(product);
-
-            await context.SaveChangesAsync();
+            productRepo.DeleteProduct(id);
 
             return Ok(id);
         }
@@ -120,12 +111,12 @@ namespace ProductAPI.Controllers
         [HttpGet("/api/products")]
         public async Task<IActionResult> GetAllProducts()
         {
-            var product = await context.Products.ToListAsync();
+            var products = await productRepo.GetAllProducts();
 
-            if (product == null)
+            if (products == null)
                 return NotFound();
 
-            var productResource = mapper.Map<List<Product>, List<ProductResource>>(product);
+            var productResource = mapper.Map<List<Product>, List<ProductResource>>(products);
 
             return Ok(productResource);
             

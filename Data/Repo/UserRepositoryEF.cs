@@ -1,37 +1,29 @@
-﻿using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using ProductAPI.Controllers.Resources;
 using ProductAPI.Interfaces;
 using ProductAPI.Models;
 using ProductApp.Data;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace ProductAPI.Data.Repo
 {
-    public class UserRepository : IUserRepository
+    public class UserRepositoryEF : IUserRepositoryEF
     {
-        private IDbConnection db;
+        private readonly ApplicationDbContext dc;
 
-        public UserRepository(IConfiguration configuration)
+        public UserRepositoryEF(ApplicationDbContext dc)
         {
-            this.db = new SqlConnection(configuration.GetConnectionString("ProductAppCon"));
+            this.dc = dc;
         }
 
         public async Task<User> Authenticate(string userName, string passwordText)
         {
             //return await dc.Users.FirstOrDefaultAsync(x => x.UserName == userName && x.Password == password);
-
-            var sql = "SELECT * FROM Users WHERE UserName=@UserName";
-            var userResult = await db.QueryAsync<User>(sql, new { @UserName = userName });
-
-            var user = userResult.FirstOrDefault();
+            var user = await dc.Users.FirstOrDefaultAsync(x => x.UserName == userName);
 
             if (user == null)
                 return null;
@@ -69,8 +61,6 @@ namespace ProductAPI.Data.Repo
                 passwordKey = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerReq.Password));
             }
-         
-        
 
             User user = new User();
             user.UserName = registerReq.UserName;
@@ -81,25 +71,19 @@ namespace ProductAPI.Data.Repo
             user.Email = registerReq.Email;
             user.DateOfBirth = registerReq.DateOfBirth;
 
-            var sql = "INSERT INTO Users(UserName,Firstname,Lastname,IsActive,Email,DateOfBirth,Password,PasswordKey) VALUES(@UserName,@Firstname,@Lastname,@IsActive,@Email,@DateOfBirth,@Password,@PasswordKey)";
-            db.Execute(sql, user);
-
-
+            dc.Users.Add(user);
+             
         }
 
         public async Task<bool> UserAlreadyExists(string userName)
         {
-            //return await dc.Users.AnyAsync(x => x.UserName == userName);
-
-            var sql = "SELECT * FROM Users WHERE UserName=@UserName";
-            var user = await db.QueryAsync<User>(sql, new { @UserName = userName });
-
-            return user.Any();
+            return await dc.Users.AnyAsync(x => x.UserName == userName);
+        
         }
 
-        //public async Task<int> SaveChanges()
-        //{
-        //    return await dc.SaveChangesAsync();
-        //}
+        public async Task<int> SaveChanges()
+        {
+            return await dc.SaveChangesAsync();
+        }
     }
 }

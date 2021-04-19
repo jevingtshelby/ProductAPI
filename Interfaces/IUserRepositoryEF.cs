@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace ProductAPI.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepositoryEF
     {
         Task<User> Authenticate(string userName, string password);
         void Register(RegisterRequestResource registerReq);
 
         Task<bool> UserAlreadyExists(string userName);
+        Task<int> SaveChanges();
     }
 }
