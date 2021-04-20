@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +24,14 @@ namespace ProductAPI.Controllers
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IProductRepository productRepo;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public ProductCategoriesController(ApplicationDbContext context, IMapper mapper, IProductRepository productRepo)
+        public ProductCategoriesController(ApplicationDbContext context, IMapper mapper, IProductRepository productRepo, IWebHostEnvironment webHostEnvironment)
         {
             this.context = context;
             this.mapper = mapper;
             this.productRepo = productRepo;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet("/api/categories")]
@@ -45,6 +49,18 @@ namespace ProductAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if(productResource.ProductImage != null)
+            {
+                string folder = "products/images";
+                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage;
+
+                productResource.ImagePath = folder;
+
+                string serverFolder = Path.Combine(webHostEnvironment.WebRootPath, folder);
+
+                await productResource.ProductImage.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            }
             
             var product = mapper.Map<ProductResource, Product>(productResource);
 
@@ -77,10 +93,22 @@ namespace ProductAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var product = await productRepo.GetProductbyId(id);
+            var product = await productRepo.GetProductbyId(id);          
 
             if (product == null)
                 return NotFound();
+
+            if (productResource.ProductImage != null)
+            {
+                string folder = "products/images";
+                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage;
+
+                productResource.ImagePath = folder;
+
+                string serverFolder = Path.Combine(webHostEnvironment.WebRootPath, folder);
+
+                await productResource.ProductImage.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            }
 
             mapper.Map<ProductResource, Product>(productResource, product);
 

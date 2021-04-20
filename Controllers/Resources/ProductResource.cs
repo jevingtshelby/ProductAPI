@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace ProductAPI.Controllers.Resources
         public string Name { get; set; }
         public string Description { get; set; }
         public string ImagePath { get; set; }
+        public IFormFile ProductImage { get; set; }
         public string Type { get; set; }
         public string Expiry { get; set; }
         public DateTime Date { get; set; }
