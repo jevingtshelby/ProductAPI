@@ -80,6 +80,7 @@ namespace ProductAPI.Data.Repo
             user.Lastname = registerReq.Lastname;
             user.Email = registerReq.Email;
             user.DateOfBirth = registerReq.DateOfBirth;
+            user.IsActive = true;
 
             var sql = "INSERT INTO Users(UserName,Firstname,Lastname,IsActive,Email,DateOfBirth,Password,PasswordKey) VALUES(@UserName,@Firstname,@Lastname,@IsActive,@Email,@DateOfBirth,@Password,@PasswordKey)";
             db.Execute(sql, user);

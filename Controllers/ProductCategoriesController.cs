@@ -33,7 +33,7 @@ namespace ProductAPI.Controllers
             this.productRepo = productRepo;
             this.webHostEnvironment = webHostEnvironment;
         }
-
+        [Authorize(Policy = "UserWithActiveStatus")]
         [HttpGet("/api/categories")]
         public async Task<IEnumerable<ProductCategoryResource>> GetProductCategories()
         {

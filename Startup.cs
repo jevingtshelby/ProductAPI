@@ -18,6 +18,7 @@ using ProductAPI.Filters;
 using Microsoft.AspNetCore.ResponseCompression;
 using ProductAPI.Options;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProductAPI
 {
@@ -74,12 +75,16 @@ namespace ProductAPI
                         IssuerSigningKey = key
                     }; 
                 });
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("UserWithActiveStatus", policy => policy.RequireAssertion(
-            //        context => context.User.Claims
-            //        ))
-            //})
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("UserWithActiveStatus", policy =>
+                policy.Requirements.Add(new UserIsActiveRequirement(true)));
+
+            });
+
+            services.AddSingleton<IAuthorizationHandler, UserIsActiveHandler>();
+            services.AddSingleton<IUserIsActive, UserIsActive>();
+
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new OpenApiInfo { Title ="ProductAPI", Version="v1"});

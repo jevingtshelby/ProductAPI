@@ -15,6 +15,7 @@ using ProductAPI.Interfaces;
 using ProductAPI.Models;
 using ProductApp.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProductAPI.Controllers
 {
@@ -32,7 +33,7 @@ namespace ProductAPI.Controllers
             this.userRepo = userRepo;
             this.configuration = configuration;
         }
-
+      
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestResource loginReq)
         {
@@ -70,7 +71,11 @@ namespace ProductAPI.Controllers
             var claims = new Claim[]
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Firstname != null? user.Firstname : ""),
+                new Claim(ClaimTypes.Name, user.Lastname != null? user.Lastname : ""),
+                new Claim(ClaimTypes.Anonymous, user.IsActive.ToString())
+
             };
 
             var signingCredentials = new SigningCredentials(
