@@ -62,7 +62,7 @@ namespace ProductAPI.Controllers
             return StatusCode(201);
         }
 
-        public string CreateJWT(User user)
+        protected string CreateJWT(User user)
         {
             var secretKey = configuration.GetSection("AppSettings:Key").Value;
             var key = new SymmetricSecurityKey(Encoding.UTF8
