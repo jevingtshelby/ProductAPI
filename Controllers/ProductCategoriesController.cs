@@ -45,15 +45,15 @@ namespace ProductAPI.Controllers
         }
 
         [HttpPost("/api/products")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductResource productResource)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductResource productResource)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             if(productResource.ProductImage != null)
             {
-                string folder = "products/images";
-                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage;
+                string folder = "products/images/";
+                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage.FileName;
 
                 productResource.ImagePath = folder;
 
@@ -88,7 +88,7 @@ namespace ProductAPI.Controllers
         }
 
         [HttpPut("/api/products/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductResource productResource)
+        public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductResource productResource)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -100,8 +100,8 @@ namespace ProductAPI.Controllers
 
             if (productResource.ProductImage != null)
             {
-                string folder = "products/images";
-                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage;
+                string folder = "products/images/";
+                folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage.FileName;
 
                 productResource.ImagePath = folder;
 
@@ -114,7 +114,7 @@ namespace ProductAPI.Controllers
 
             var productUpdated = await productRepo.UpdateProduct(id, product);
 
-            var result = mapper.Map<Product, ProductResource>(productUpdated, productResource);
+            var result = mapper.Map<Product, ProductResource>(productUpdated);
 
 
             return Ok(result);

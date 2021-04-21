@@ -231,3 +231,6 @@ _Pvt_Extensions
 .fake/
 
 /UserWithActiveStatus.cs
+/wwwroot/products/images
+/wwwroot/products
+/log.txt
