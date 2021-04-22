@@ -23,17 +23,17 @@ namespace ProductAPI.Data.Repo
 
         public async Task<Product> CreateProduct(Product product)
         {
-            //var sql = "INSERT INTO Products(Name,Description,ImagePath,Type,Expiry,Date,Price,LastUpdatedBy,ProductCategoryId) VALUES(@Name,@Description,@ImagePath,@Type,@Expiry,@Date,@Price,@LastUpdatedBy,@ProductCategoryId)"
-            //            + "SELECT CAST(SCOPE IDENTITY() as int)";
-            //var id = await db.QueryAsync<int>(sql, new { @Name = product.Name, @Description = product.Description, @ImagePath = product.ImagePath, @Type = product.Type, @Expiry = product.Expiry, @Date = product.Date, @Price = product.Price, @LastUpdatedBy = product.LastUpdatedBy, @ProductCategoryId = product.ProductCategoryId });
-            //product.Id = id.Single();
+            var sql = "INSERT INTO Products(Name,Description,ImagePath,Type,Expiry,Date,Price,LastUpdatedBy,ProductCategoryId) VALUES(@Name,@Description,@ImagePath,@Type,@Expiry,@Date,@Price,@LastUpdatedBy,@ProductCategoryId);"
+                        + "SELECT CAST(SCOPE_IDENTITY() as int)";
+            var id = await db.QueryAsync<int>(sql, new { @Name = product.Name, @Description = product.Description, @ImagePath = product.ImagePath, @Type = product.Type, @Expiry = product.Expiry, @Date = product.Date, @Price = product.Price, @LastUpdatedBy = product.LastUpdatedBy, @ProductCategoryId = product.ProductCategoryId });
+            product.Id = id.Single();
 
-            //return product;
-
-            var sql = "INSERT INTO Products(Name,Description,ImagePath,Type,Expiry,Date,Price,LastUpdatedBy,ProductCategoryId) VALUES(@Name,@Description,@ImagePath,@Type,@Expiry,@Date,@Price,@LastUpdatedBy,@ProductCategoryId)";
-            await db.ExecuteAsync(sql, new { @Name = product.Name, @Description = product.Description, @ImagePath = product.ImagePath, @Type = product.Type, @Expiry = product.Expiry, @Date = product.Date, @Price = product.Price, @LastUpdatedBy = product.LastUpdatedBy, @ProductCategoryId = product.ProductCategoryId });
-            
             return product;
+
+            //var sql = "INSERT INTO Products(Name,Description,ImagePath,Type,Expiry,Date,Price,LastUpdatedBy,ProductCategoryId) VALUES(@Name,@Description,@ImagePath,@Type,@Expiry,@Date,@Price,@LastUpdatedBy,@ProductCategoryId)";
+            //await db.ExecuteAsync(sql, new { @Name = product.Name, @Description = product.Description, @ImagePath = product.ImagePath, @Type = product.Type, @Expiry = product.Expiry, @Date = product.Date, @Price = product.Price, @LastUpdatedBy = product.LastUpdatedBy, @ProductCategoryId = product.ProductCategoryId });
+            
+            //return product;
         }
 
         public async void DeleteProduct(int id)
