@@ -50,7 +50,7 @@ namespace ProductAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if(productResource.ProductImage != null)
+            if (productResource.ProductImage != null)
             {
                 string folder = "products/images/";
                 folder += Guid.NewGuid().ToString() + "_" + productResource.ProductImage.FileName;
@@ -61,7 +61,7 @@ namespace ProductAPI.Controllers
 
                 await productResource.ProductImage.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
             }
-            
+
             var product = mapper.Map<ProductResource, Product>(productResource);
 
             var productReturn = await productRepo.CreateProduct(product);//context.Products.Add(product);
@@ -149,5 +149,29 @@ namespace ProductAPI.Controllers
             return Ok(productResource);
             
         }
+
+        [HttpPost("/api/upload-file")]
+        public async Task<string> UploadFile([FromForm(Name = "productImage")] IFormFile productImage)
+        {
+            var productResource = new ProductResource();
+
+            if (productImage != null)
+            {
+                string folder = "products/images/";
+                folder += Guid.NewGuid().ToString() + "_" + productImage.FileName;
+
+                productResource.ImagePath = folder;
+
+                string serverFolder = Path.Combine(webHostEnvironment.WebRootPath, folder);
+
+                await productResource.ProductImage.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+
+                return serverFolder;
+            }
+
+            return null;
+
+        }
+
     }
 }

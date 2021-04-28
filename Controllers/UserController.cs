@@ -56,10 +56,18 @@ namespace ProductAPI.Controllers
                 return BadRequest("User already exists, please try something else");
 
             userRepo.Register(registerReq);
-
             //await userRepo.SaveChanges();
 
-            return StatusCode(201);
+            var user = await userRepo.Authenticate(registerReq.UserName, registerReq.Password);
+
+            if (user == null)
+                return Unauthorized();
+
+            var loginRes = new LoginResponseResource();
+            loginRes.UserName = registerReq.UserName;
+            loginRes.Token = CreateJWT(user);
+
+            return Ok(loginRes);//StatusCode(201);
         }
 
         protected string CreateJWT(User user)
